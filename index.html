@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f97316">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Manutencao">
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<title>Manutencao de Veiculos</title>
+<style>
+:root{--bg:#0f1117;--surface:#161b26;--card:#1c2333;--border:#2a3347;--orange:#f97316;--orange2:#fb923c;--orange-light:rgba(249,115,22,0.12);--green:#22c55e;--green-light:rgba(34,197,94,0.12);--red:#ef4444;--red-light:rgba(239,68,68,0.12);--yellow:#f59e0b;--blue:#3b82f6;--text:#e8ecf4;--muted:#64748b;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;overscroll-behavior:none;}
+.header{background:linear-gradient(135deg,#7c2d12,#c2410c,#f97316);padding:14px 18px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(249,115,22,0.35);}
+.header-top{display:flex;align-items:center;justify-content:space-between;}
+.logo-nome{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:white;line-height:1;}
+.logo-sub{font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;}
+.hstat-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:white;line-height:1;}
+.hstat-lbl{font-size:10px;color:rgba(255,255,255,0.7);}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:1;padding:12px 10px;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;min-width:70px;}
+.tab.active{color:var(--orange2);border-bottom-color:var(--orange);}
+.main{padding:16px;max-width:700px;margin:0 auto;padding-bottom:40px;}
+.section{display:none;}.section.active{display:block;}
+.install-banner{display:none;background:var(--orange-light);border:1px solid var(--orange);border-radius:12px;padding:14px 16px;margin-bottom:16px;align-items:center;gap:12px;}
+.install-banner.show{display:flex;}
+.install-banner p{flex:1;font-size:13px;color:var(--orange2);}
+.btn-install{background:var(--orange);color:white;border:none;border-radius:8px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;font-family:'IBM Plex Sans',sans-serif;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px;}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px;color:var(--orange2);margin-bottom:14px;}
+.veiculos-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.vcard{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;}
+.vcard.active{border-color:var(--orange);background:var(--orange-light);}
+.vcard.tem-aberto{border-color:var(--red);}
+.vcard-icon{font-size:30px;margin-bottom:6px;}
+.vcard-nome{font-weight:700;font-size:12px;line-height:1.2;}
+.vcard-placa{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px;}
+.vcard-badge{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+.badge-ok{background:var(--green-light);color:var(--green);}
+.badge-alerta{background:var(--red-light);color:var(--red);}
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.form-group label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;}
+.form-group input,.form-group select,.form-group textarea{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;color:var(--text);padding:11px 13px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;width:100%;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--orange);}
+.form-group textarea{resize:vertical;min-height:80px;line-height:1.5;}
+.form-group select option{background:var(--surface);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.foto-area{margin-bottom:12px;}
+.foto-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;margin-bottom:8px;}
+.foto-btns{display:flex;gap:8px;margin-bottom:10px;}
+.foto-btn{flex:1;padding:12px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;text-align:center;font-family:'IBM Plex Sans',sans-serif;}
+.foto-btn.cam{border-color:var(--orange);color:var(--orange);}
+.foto-btn.cam:active{background:var(--orange);color:white;}
+.foto-prev{position:relative;display:none;margin-bottom:6px;}
+.foto-prev.show{display:block;}
+.foto-prev img{width:100%;max-height:220px;object-fit:cover;border-radius:10px;border:2px solid var(--orange);}
+.foto-rm{position:absolute;top:8px;right:8px;background:var(--red);color:white;border:none;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+.btn{border:none;border-radius:10px;padding:14px;font-family:'IBM Plex Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;width:100%;transition:all .15s;}
+.btn:active{transform:scale(.97);}
+.btn-orange{background:var(--orange);color:white;}
+.btn-green{background:var(--green);color:white;}
+.btn-gray{background:var(--border);color:var(--text);}
+.btn-red{background:var(--red);color:white;}
+.btn-sm{padding:8px 14px;font-size:12px;width:auto;border-radius:8px;}
+.ocorr-list{display:flex;flex-direction:column;gap:12px;}
+.ocorr-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;}
+.ocorr-head{padding:14px 16px;display:flex;align-items:flex-start;gap:12px;}
+.odot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.oinfo{flex:1;min-width:0;}
+.otitulo{font-weight:700;font-size:15px;line-height:1.3;}
+.ometa{font-size:11px;color:var(--muted);margin-top:4px;display:flex;flex-wrap:wrap;gap:6px;}
+.obadge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;flex-shrink:0;}
+.badge-ab{background:var(--red-light);color:var(--red);}
+.badge-res{background:var(--green-light);color:var(--green);}
+.ocorr-fotos{display:flex;gap:8px;padding:0 16px 14px;}
+.ofoto-wrap{flex:1;}
+.ofoto-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700;margin-bottom:4px;}
+.ofoto-img{width:100%;height:110px;object-fit:cover;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;display:block;}
+.ofoto-img.antes{border-color:var(--red);}
+.ofoto-img.depois{border-color:var(--green);}
+.ofoto-ph{width:100%;height:110px;border-radius:8px;border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);text-align:center;padding:8px;}
+.ocorr-actions{padding:0 16px 14px;display:flex;gap:8px;}
+.tempo-bar{background:var(--orange-light);border-top:1px solid var(--border);padding:8px 16px;font-size:12px;color:var(--orange2);font-weight:600;}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+.stats-grid.four{grid-template-columns:repeat(4,1fr);}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;margin-bottom:3px;}
+.stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;}
+.v-dh{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.v-dh-icon{font-size:42px;}
+.v-dh-nome{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--orange2);}
+.v-dh-placa{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted);}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:100%;max-height:80vh;border-radius:12px;object-fit:contain;}
+.lb-close{background:var(--red);color:white;border:none;border-radius:30px;padding:12px 32px;font-size:15px;cursor:pointer;font-weight:700;font-family:'IBM Plex Sans',sans-serif;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;padding:24px;width:100%;max-width:700px;border-top:2px solid var(--green);max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--green);margin-bottom:16px;}
+.empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty .ei{font-size:48px;margin-bottom:10px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:white;padding:13px 24px;border-radius:40px;font-weight:700;font-size:14px;z-index:999;transition:transform .3s ease;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.filtro-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.fbtn{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'IBM Plex Sans',sans-serif;}
+.fbtn.active{background:var(--orange);border-color:var(--orange);color:white;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="logo-nome">🔧 MANUTENÇÃO</div>
+      <div class="logo-sub">André Luiz — Reg. Nº 10439 | Portex Brasil</div>
+    </div>
+    <div style="text-align:right">
+      <div class="hstat-num" id="hAbertos">0</div>
+      <div class="hstat-lbl">Em aberto</div>
+    </div>
+  </div>
+</div>
+<div class="tabs">
+  <button class="tab active" onclick="showTab('registrar',this)">➕ Registrar</button>
+  <button class="tab" onclick="showTab('ocorrencias',this)">📋 Ocorrências</button>
+  <button class="tab" onclick="showTab('veiculos',this)">🚛 Veículos</button>
+  <button class="tab" onclick="showTab('relatorio',this)">📊 Relatório</button>
+</div>
+<div class="main">
+  <div class="install-banner" id="installBanner">
+    <span style="font-size:26px">📲</span>
+    <p><strong>Instalar como App!</strong><br>Adicione à tela inicial</p>
+    <button class="btn-install" onclick="instalarApp()">INSTALAR</button>
+    <button onclick="document.getElementById('installBanner').classList.remove('show')" style="background:none;border:none;color:var(--orange2);font-size:20px;cursor:pointer;padding:4px">✕</button>
+  </div>
+
+  <div class="section active" id="tab-registrar">
+    <div class="card">
+      <div class="card-title">🚛 Selecionar Veículo</div>
+      <div class="veiculos-row" id="veiculosSeletor"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚠️ Registrar Problema</div>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0"><label>Data</label><input type="date" id="regData"></div>
+        <div class="form-group" style="margin-bottom:0"><label>Hora</label><input type="time" id="regHora"></div>
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label>Tipo do Problema</label>
+        <select id="regTipo">
+          <option>Motor / Mecânica</option><option>Pneu / Rodas</option><option>Freios</option>
+          <option>Elétrica / Bateria</option><option>Carroceria / Lataria</option><option>Hidráulico</option>
+          <option>Suspensão</option><option>Embreagem / Câmbio</option>
+          <option>Revisão Preventiva</option><option>Acidente / Colisão</option><option>Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Descrição do Problema</label>
+        <textarea id="regDescricao" placeholder="Descreva o problema: o que aconteceu, sintomas..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Gravidade</label>
+        <select id="regGravidade">
+          <option value="baixa">🟡 Baixa — pode rodar, mas precisa de atenção</option>
+          <option value="media">🟠 Média — necessita reparo em breve</option>
+          <option value="alta">🔴 Alta — veículo parado imediatamente</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Local da Ocorrência</label>
+        <input type="text" id="regLocal" placeholder="Ex: Garagem, PN do Feio, Rua XV...">
+      </div>
+      <div class="foto-area">
+        <div class="foto-lbl">📷 Foto do Problema (ANTES)</div>
+        <div class="foto-btns">
+          <button class="foto-btn cam" onclick="abrirFoto('regFoto','camera')">📷 Tirar Foto</button>
+          <button class="foto-btn" onclick="abrirFoto('regFoto','galeria')">🖼 Galeria</button>
+        </div>
+        <div class="foto-prev" id="prevRegFoto"><img id="imgRegFoto" src=""><button class="foto-rm" onclick="removerFoto('regFoto')">✕</button></div>
+      </div>
+      <button class="btn btn-orange" onclick="registrarProblema()">⚠️ REGISTRAR PROBLEMA</button>
+    </div>
+  </div>
+
+  <div class="section" id="tab-ocorrencias">
+    <div class="filtro-row" id="filtroVeiculos"></div>
+    <div class="filtro-row">
+      <button class="fbtn active" onclick="setFiltroStatus('todos',this)">Todos</button>
+      <button class="fbtn" onclick="setFiltroStatus('aberto',this)">🔴 Em aberto</button>
+      <button class="fbtn" onclick="setFiltroStatus('resolvido',this)">🟢 Resolvidos</button>
+    </div>
+    <div class="ocorr-list" id="listaOcorrencias"></div>
+  </div>
+
+  <div class="section" id="tab-veiculos">
+    <div class="stats-grid four" id="statsGerais"></div>
+    <div id="veiculosDetalhes"></div>
+  </div>
+
+  <div class="section" id="tab-relatorio">
+    <div class="card">
+      <div class="card-title">📄 Gerar Relatório PDF</div>
+      <div class="form-group"><label>Veículo</label><select id="relVeiculo"><option value="todos">Todos os Veículos</option></select></div>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0"><label>De</label><input type="date" id="relInicio"></div>
+        <div class="form-group" style="margin-bottom:0"><label>Até</label><input type="date" id="relFim"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn-sm btn btn-gray" onclick="setRelMes()">Este mês</button>
+        <button class="btn-sm btn btn-gray" onclick="setRelMesPassado()">Mês passado</button>
+        <button class="btn-sm btn btn-gray" onclick="setRelTudo()">Tudo</button>
+      </div>
+      <div style="height:12px"></div>
+      <button class="btn btn-orange" onclick="gerarPDF()">📄 GERAR PDF PARA O CHEFE</button>
+    </div>
+    <div class="card">
+      <div class="card-title">💾 Backup</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn btn-green" onclick="exportarBackup()">⬇ BAIXAR BACKUP</button>
+        <button class="btn btn-gray" onclick="document.getElementById('importFile').click()">⬆ RESTAURAR BACKUP</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importarBackup(event)">
+      </div>
+    </div>
+    <div class="card" style="border-color:#ef444430">
+      <div class="card-title" style="color:var(--red)">⚠ Zona de Perigo</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Apaga todas as ocorrências e fotos</p>
+      <button class="btn btn-red" onclick="apagarTudo()">🗑 APAGAR TUDO</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title">✅ Resolver Ocorrência</div>
+    <input type="hidden" id="modalOcorrId">
+    <div class="form-group"><label>Descrição da Solução</label><textarea id="modalSolucao" placeholder="O que foi feito? Peças trocadas, serviços realizados..."></textarea></div>
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0"><label>Data da Resolução</label><input type="date" id="modalDataRes"></div>
+      <div class="form-group" style="margin-bottom:0"><label>Custo (R$)</label><input type="number" id="modalCusto" min="0" step="0.01" placeholder="0,00"></div>
+    </div>
+    <div class="form-group" style="margin-top:12px"><label>Oficina / Mecânico</label><input type="text" id="modalOficina" placeholder="Ex: Oficina do Zé, Mecânico João..."></div>
+    <div class="foto-area" style="margin-top:12px">
+      <div class="foto-lbl">📷 Foto DEPOIS da Resolução</div>
+      <div class="foto-btns">
+        <button class="foto-btn cam" onclick="abrirFoto('modalFoto','camera')">📷 Tirar Foto</button>
+        <button class="foto-btn" onclick="abrirFoto('modalFoto','galeria')">🖼 Galeria</button>
+      </div>
+      <div class="foto-prev" id="prevModalFoto"><img id="imgModalFoto" src=""><button class="foto-rm" onclick="removerFoto('modalFoto')">✕</button></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="btn btn-green" style="flex:2" onclick="confirmarResolucao()">✅ CONFIRMAR RESOLUÇÃO</button>
+      <button class="btn btn-gray" style="flex:1" onclick="fecharModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="fecharLightbox()">
+  <img id="lightboxImg" src="">
+  <button class="lb-close" onclick="fecharLightbox()">✕ Fechar</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const MOTORISTA='André Luiz',REGISTRO='10439';
+const VEICULOS=[
+  {id:'v1',nome:'Voyage 2022',placa:'Portex Brasil',icon:'🚗',cor:'#6366f1'},
+  {id:'v2',nome:'Atego Caçamba',placa:'GMA2-75',icon:'🚛',cor:'#f97316'},
+  {id:'v3',nome:'Ford Sapão',placa:'Caçamba Forte',icon:'🏗️',cor:'#22c55e'},
+];
+const DB_NAME='manutencao_db',DB_VER=1;
+let db=null;
+function abrirDB(){return new Promise((res,rej)=>{const req=indexedDB.open(DB_NAME,DB_VER);req.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains('ocorrencias'))d.createObjectStore('ocorrencias',{keyPath:'id'});if(!d.objectStoreNames.contains('fotos'))d.createObjectStore('fotos',{keyPath:'id'});};req.onsuccess=e=>{db=e.target.result;res(db);};req.onerror=rej;});}
+function dbPut(s,o){return new Promise((res,rej)=>{const tx=db.transaction(s,'readwrite');tx.objectStore(s).put(o).onsuccess=e=>res(e.target.result);tx.onerror=rej;});}
+function dbGet(s,k){return new Promise((res,rej)=>{const tx=db.transaction(s,'readonly');tx.objectStore(s).get(k).onsuccess=e=>res(e.target.result);tx.onerror=rej;});}
+function dbGetAll(s){return new Promise((res,rej)=>{const tx=db.transaction(s,'readonly');tx.objectStore(s).getAll().onsuccess=e=>res(e.target.result);tx.onerror=rej;});}
+function dbDelete(s,k){return new Promise((res,rej)=>{const tx=db.transaction(s,'readwrite');tx.objectStore(s).delete(k).onsuccess=()=>res();tx.onerror=rej;});}
+function dbClear(s){return new Promise((res,rej)=>{const tx=db.transaction(s,'readwrite');tx.objectStore(s).clear().onsuccess=()=>res();tx.onerror=rej;});}
+let veiculoSelecionado=VEICULOS[0].id;
+let fotoBlobs={regFoto:null,modalFoto:null};
+let filtroVeiculo='todos',filtroStatus='todos';
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBanner').classList.add('show');});
+function instalarApp(){if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('installBanner').classList.remove('show');});}
+function toInputDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function toInputTime(d){return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function formatDate(s){if(!s)return'';const[y,m,d]=s.split('-');return d+'/'+m+'/'+y;}
+function formatDT(data,hora){return formatDate(data)+(hora?' às '+hora:'');}
+function tempoParado(di,hi,df,hf){
+  if(!di)return null;
+  const ini=new Date(di+'T'+(hi||'00:00')),fim=df?new Date(df+'T'+(hf||'00:00')):new Date();
+  const diff=fim-ini;if(diff<0)return null;
+  const h=Math.floor(diff/3600000),d=Math.floor(h/24),hr=h%24;
+  return d>0?d+'d '+hr+'h':h+'h';
+}
+function gravCor(g){return{baixa:'var(--yellow)',media:'var(--orange)',alta:'var(--red)'}[g]||'var(--muted)';}
+function gravTxt(g){return{baixa:'🟡 Baixa',media:'🟠 Média',alta:'🔴 Alta'}[g]||g;}
+function abrirFoto(campo,tipo){
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.style.display='none';
+  if(tipo==='camera')inp.setAttribute('capture','environment');
+  document.body.appendChild(inp);
+  inp.addEventListener('change',function(){if(this.files&&this.files[0])processarFoto(this.files[0],campo);setTimeout(()=>document.body.removeChild(inp),1000);});
+  inp.click();
+}
+function processarFoto(file,campo){
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const canvas=document.createElement('canvas');
+      const maxW=1200;let w=img.width,h=img.height;
+      if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      canvas.toBlob(blob=>{
+        fotoBlobs[campo]=blob;
+        const key=campo==='regFoto'?'RegFoto':'ModalFoto';
+        const imgEl=document.getElementById('img'+key);
+        const prevEl=document.getElementById('prev'+key);
+        if(imgEl)imgEl.src=URL.createObjectURL(blob);
+        if(prevEl)prevEl.classList.add('show');
+        showToast('📷 Foto: '+Math.round(blob.size/1024)+'KB');
+      },'image/jpeg',0.82);
+    };img.src=e.target.result;
+  };reader.readAsDataURL(file);
+}
+function removerFoto(campo){
+  fotoBlobs[campo]=null;
+  const key=campo==='regFoto'?'RegFoto':'ModalFoto';
+  const imgEl=document.getElementById('img'+key);
+  const prevEl=document.getElementById('prev'+key);
+  if(imgEl)imgEl.src='';if(prevEl)prevEl.classList.remove('show');
+}
+function abrirLightbox(fotoId){
+  dbGet('fotos',fotoId).then(f=>{
+    if(!f)return;
+    const url=URL.createObjectURL(f.blob);
+    const lb=document.getElementById('lightbox');
+    document.getElementById('lightboxImg').src=url;
+    lb._url=url;lb.classList.add('open');
+  });
+}
+function fecharLightbox(){
+  const lb=document.getElementById('lightbox');
+  if(lb._url)URL.revokeObjectURL(lb._url);
+  document.getElementById('lightboxImg').src='';
+  lb.classList.remove('open');
+}
+async function init(){
+  await abrirDB();
+  const now=new Date();
+  document.getElementById('regData').value=toInputDate(now);
+  document.getElementById('regHora').value=toInputTime(now);
+  document.getElementById('modalDataRes').value=toInputDate(now);
+  renderSeletor();renderFiltroV();preencherRelV();setRelMes();
+  await atualizarHeader();
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js');
+}
+function renderSeletor(){
+  document.getElementById('veiculosSeletor').innerHTML=VEICULOS.map(v=>`
+    <div class="vcard ${v.id===veiculoSelecionado?'active':''}" id="vs-${v.id}" onclick="selV('${v.id}')">
+      <div class="vcard-icon">${v.icon}</div>
+      <div class="vcard-nome">${v.nome}</div>
+      <div class="vcard-placa">${v.placa}</div>
+    </div>`).join('');
+}
+function selV(id){veiculoSelecionado=id;document.querySelectorAll('.vcard').forEach(c=>c.classList.remove('active'));const c=document.getElementById('vs-'+id);if(c)c.classList.add('active');}
+function renderFiltroV(){
+  document.getElementById('filtroVeiculos').innerHTML='<button class="fbtn active" onclick="setFV(\'todos\',this)">Todos</button>'+VEICULOS.map(v=>`<button class="fbtn" onclick="setFV('${v.id}',this)">${v.icon} ${v.nome}</button>`).join('');
+}
+function preencherRelV(){const s=document.getElementById('relVeiculo');VEICULOS.forEach(v=>{const o=document.createElement('option');o.value=v.id;o.textContent=v.icon+' '+v.nome+' ('+v.placa+')';s.appendChild(o);});}
+function setFV(id,el){filtroVeiculo=id;document.querySelectorAll('#filtroVeiculos .fbtn').forEach(b=>b.classList.remove('active'));if(el)el.classList.add('active');renderOcorrencias();}
+function setFiltroStatus(s,el){filtroStatus=s;document.querySelectorAll('#tab-ocorrencias .filtro-row:nth-child(2) .fbtn').forEach(b=>b.classList.remove('active'));if(el)el.classList.add('active');renderOcorrencias();}
+function showTab(name,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(el)el.classList.add('active');
+  if(name==='ocorrencias')renderOcorrencias();
+  if(name==='veiculos')renderVeiculosDetalhes();
+}
+async function registrarProblema(){
+  const data=document.getElementById('regData').value,hora=document.getElementById('regHora').value;
+  const tipo=document.getElementById('regTipo').value,desc=document.getElementById('regDescricao').value.trim();
+  const grav=document.getElementById('regGravidade').value,local=document.getElementById('regLocal').value.trim();
+  if(!data||!desc){showToast('⚠ Preencha data e descrição!','#ef4444');return;}
+  const id=Date.now();
+  await dbPut('ocorrencias',{id,veiculoId:veiculoSelecionado,data,hora,tipo,descricao:desc,gravidade:grav,local,status:'aberto',temFotoAntes:!!fotoBlobs.regFoto,solucao:null,dataResolucao:null,horaResolucao:null,custo:null,oficina:null,temFotoDepois:false,criadoEm:new Date().toISOString()});
+  if(fotoBlobs.regFoto)await dbPut('fotos',{id:'antes-'+id,blob:fotoBlobs.regFoto});
+  document.getElementById('regDescricao').value='';document.getElementById('regLocal').value='';
+  removerFoto('regFoto');
+  document.getElementById('regData').value=toInputDate(new Date());document.getElementById('regHora').value=toInputTime(new Date());
+  await atualizarHeader();showToast('⚠️ Problema registrado!','#f97316');
+}
+function abrirModalResolver(id){
+  document.getElementById('modalOcorrId').value=id;
+  document.getElementById('modalSolucao').value='';document.getElementById('modalDataRes').value=toInputDate(new Date());
+  document.getElementById('modalCusto').value='';document.getElementById('modalOficina').value='';
+  removerFoto('modalFoto');document.getElementById('modalOverlay').classList.add('open');
+}
+function fecharModal(){document.getElementById('modalOverlay').classList.remove('open');}
+async function confirmarResolucao(){
+  const id=parseInt(document.getElementById('modalOcorrId').value);
+  const solucao=document.getElementById('modalSolucao').value.trim();
+  const dataRes=document.getElementById('modalDataRes').value;
+  const custo=parseFloat(document.getElementById('modalCusto').value)||0;
+  const oficina=document.getElementById('modalOficina').value.trim();
+  if(!solucao){showToast('⚠ Descreva a solução!','#ef4444');return;}
+  const o=await dbGet('ocorrencias',id);if(!o)return;
+  o.status='resolvido';o.solucao=solucao;o.dataResolucao=dataRes;o.horaResolucao=toInputTime(new Date());o.custo=custo;o.oficina=oficina;o.temFotoDepois=!!fotoBlobs.modalFoto;
+  await dbPut('ocorrencias',o);
+  if(fotoBlobs.modalFoto)await dbPut('fotos',{id:'depois-'+id,blob:fotoBlobs.modalFoto});
+  fecharModal();await atualizarHeader();renderOcorrencias();showToast('✅ Problema resolvido!','#22c55e');
+}
+async function deletarOcorrencia(id){
+  if(!confirm('Apagar esta ocorrência e suas fotos?'))return;
+  await dbDelete('ocorrencias',id);await dbDelete('fotos','antes-'+id);await dbDelete('fotos','depois-'+id);
+  await atualizarHeader();renderOcorrencias();showToast('Apagada.','#ef4444');
+}
+async function renderOcorrencias(){
+  let all=await dbGetAll('ocorrencias');
+  if(filtroVeiculo!=='todos')all=all.filter(o=>o.veiculoId===filtroVeiculo);
+  if(filtroStatus!=='todos')all=all.filter(o=>o.status===filtroStatus);
+  all.sort((a,b)=>b.id-a.id);
+  const el=document.getElementById('listaOcorrencias');
+  if(!all.length){el.innerHTML='<div class="empty"><div class="ei">🔧</div><p>Nenhuma ocorrência encontrada.</p></div>';return;}
+  el.innerHTML=all.map(o=>{
+    const v=VEICULOS.find(v=>v.id===o.veiculoId)||VEICULOS[0];
+    const tp=tempoParado(o.data,o.hora,o.dataResolucao,o.horaResolucao);
+    const ab=o.status==='aberto';
+    return`<div class="ocorr-card">
+      <div class="ocorr-head">
+        <div class="odot" style="background:${ab?'var(--red)':'var(--green)'}"></div>
+        <div class="oinfo">
+          <div class="otitulo">${o.tipo}</div>
+          <div class="ometa">
+            <span>${v.icon} ${v.nome} • ${v.placa}</span>
+            <span>📅 ${formatDT(o.data,o.hora)}</span>
+            ${o.local?'<span>📍 '+o.local+'</span>':''}
+            <span style="color:${gravCor(o.gravidade)};font-weight:700">${gravTxt(o.gravidade)}</span>
+          </div>
+          <div style="font-size:13px;color:#94a3b8;margin-top:6px;line-height:1.5">${o.descricao}</div>
+          ${o.solucao?'<div style="font-size:12px;color:var(--green);margin-top:6px;line-height:1.4">✅ '+o.solucao+(o.oficina?' • '+o.oficina:'')+(o.custo?' • R$ '+parseFloat(o.custo).toFixed(2).replace('.',','):'')+(o.dataResolucao?' • '+formatDate(o.dataResolucao):'')+'</div>':''}
+        </div>
+        <span class="obadge ${ab?'badge-ab':'badge-res'}">${ab?'🔴 ABERTO':'🟢 OK'}</span>
+      </div>
+      ${tp?'<div class="tempo-bar">⏱ Tempo parado: '+tp+(ab?', contando...':' (total)')+'</div>':''}
+      <div class="ocorr-fotos">
+        <div class="ofoto-wrap">
+          <div class="ofoto-lbl">📷 Antes</div>
+          ${o.temFotoAntes?`<img class="ofoto-img antes" id="fa-${o.id}" src="" onclick="abrirLightbox('antes-${o.id}')">`:'<div class="ofoto-ph">Sem foto</div>'}
+        </div>
+        <div class="ofoto-wrap">
+          <div class="ofoto-lbl">✅ Depois</div>
+          ${o.temFotoDepois?`<img class="ofoto-img depois" id="fd-${o.id}" src="" onclick="abrirLightbox('depois-${o.id}')">`:'<div class="ofoto-ph">'+(ab?'Pendente':'Sem foto')+'</div>'}
+        </div>
+      </div>
+      <div class="ocorr-actions">
+        ${ab?`<button class="btn btn-green btn-sm" style="flex:2" onclick="abrirModalResolver(${o.id})">✅ Marcar como Resolvido</button>`:''}
+        <button class="btn btn-gray btn-sm" style="flex:1;color:var(--red)" onclick="deletarOcorrencia(${o.id})">🗑 Apagar</button>
+      </div>
+    </div>`;
+  }).join('');
+  for(const o of all){
+    if(o.temFotoAntes){const f=await dbGet('fotos','antes-'+o.id);if(f){const e=document.getElementById('fa-'+o.id);if(e)e.src=URL.createObjectURL(f.blob);}}
+    if(o.temFotoDepois){const f=await dbGet('fotos','depois-'+o.id);if(f){const e=document.getElementById('fd-'+o.id);if(e)e.src=URL.createObjectURL(f.blob);}}
+  }
+}
+async function renderVeiculosDetalhes(){
+  const all=await dbGetAll('ocorrencias');
+  const ab=all.filter(o=>o.status==='aberto');
+  const res=all.filter(o=>o.status==='resolvido');
+  const custo=all.reduce((s,o)=>s+(parseFloat(o.custo)||0),0);
+  document.getElementById('statsGerais').innerHTML=`
+    <div class="stat-box"><div class="stat-num" style="color:var(--red)">${ab.length}</div><div class="stat-lbl">Em Aberto</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:var(--green)">${res.length}</div><div class="stat-lbl">Resolvidos</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:var(--orange)">${all.length}</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:var(--yellow);font-size:20px">R$${Math.round(custo)}</div><div class="stat-lbl">Custo Total</div></div>`;
+  document.getElementById('veiculosDetalhes').innerHTML=VEICULOS.map(v=>{
+    const va=all.filter(o=>o.veiculoId===v.id);
+    const vab=va.filter(o=>o.status==='aberto');
+    const vres=va.filter(o=>o.status==='resolvido');
+    const vc=va.reduce((s,o)=>s+(parseFloat(o.custo)||0),0);
+    const ult=va.sort((a,b)=>b.id-a.id)[0];
+    return`<div class="card">
+      <div class="v-dh"><div class="v-dh-icon">${v.icon}</div><div><div class="v-dh-nome">${v.nome}</div><div class="v-dh-placa">🪪 ${v.placa}</div></div><span class="vcard-badge ${vab.length?'badge-alerta':'badge-ok'}">${vab.length?vab.length+' aberto(s)':'✅ OK'}</span></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <div class="stat-box"><div class="stat-num" style="color:var(--red);font-size:24px">${vab.length}</div><div class="stat-lbl">Abertos</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--green);font-size:24px">${vres.length}</div><div class="stat-lbl">Resolvidos</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--yellow);font-size:18px">R$${Math.round(vc)}</div><div class="stat-lbl">Custo</div></div>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:var(--muted)">${ult?'Última: '+formatDate(ult.data)+' — '+ult.tipo:'Nenhuma ocorrência registrada'}</div>
+    </div>`;
+  }).join('');
+}
+async function atualizarHeader(){const all=await dbGetAll('ocorrencias');document.getElementById('hAbertos').textContent=all.filter(o=>o.status==='aberto').length;}
+function setRelMes(){const n=new Date();document.getElementById('relInicio').value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-01';document.getElementById('relFim').value=toInputDate(n);}
+function setRelMesPassado(){const n=new Date(),m=n.getMonth()===0?12:n.getMonth(),y=n.getMonth()===0?n.getFullYear()-1:n.getFullYear(),ld=new Date(y,m,0).getDate();document.getElementById('relInicio').value=y+'-'+String(m).padStart(2,'0')+'-01';document.getElementById('relFim').value=y+'-'+String(m).padStart(2,'0')+'-'+String(ld).padStart(2,'0');}
+function setRelTudo(){document.getElementById('relInicio').value='2020-01-01';document.getElementById('relFim').value=toInputDate(new Date());}
+function blobParaB64(blob){return new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(blob);});}
+async function gerarPDF(){
+  const vId=document.getElementById('relVeiculo').value;
+  const ini=document.getElementById('relInicio').value,fim=document.getElementById('relFim').value;
+  let all=await dbGetAll('ocorrencias');
+  if(vId!=='todos')all=all.filter(o=>o.veiculoId===vId);
+  if(ini)all=all.filter(o=>o.data>=ini);if(fim)all=all.filter(o=>o.data<=fim);
+  all.sort((a,b)=>a.id-b.id);
+  if(!all.length){showToast('⚠ Nenhuma ocorrência!','#f59e0b');return;}
+  showToast('⏳ Carregando fotos...');
+  const fb={};
+  for(const o of all){
+    if(o.temFotoAntes){const f=await dbGet('fotos','antes-'+o.id);if(f&&f.blob)fb['a'+o.id]=await blobParaB64(f.blob);}
+    if(o.temFotoDepois){const f=await dbGet('fotos','depois-'+o.id);if(f&&f.blob)fb['d'+o.id]=await blobParaB64(f.blob);}
+  }
+  const ct=all.reduce((s,o)=>s+(parseFloat(o.custo)||0),0);
+  const ab=all.filter(o=>o.status==='aberto').length,res=all.length-ab;
+  const vLabel=vId==='todos'?'Todos os Veículos':(VEICULOS.find(v=>v.id===vId)||{nome:'Todos'}).nome;
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relatório Manutenção</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#111;font-size:13px;padding:24px;}
+.cab{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:12px;border-bottom:3px solid #f97316;margin-bottom:18px;}
+.cab-titulo{font-size:22px;font-weight:900;color:#c2410c;}.cab-sub{font-size:13px;color:#555;margin-top:3px;}.cab-reg{font-size:11px;color:#888;margin-top:2px;}.cab-d{text-align:right;font-size:12px;color:#666;}
+.stats{display:flex;gap:10px;margin-bottom:20px;}.stat{flex:1;background:#fff7ed;border-radius:8px;padding:10px;text-align:center;border-left:3px solid #f97316;}.stat .n{font-size:22px;font-weight:900;color:#c2410c;line-height:1;}.stat .l{font-size:10px;text-transform:uppercase;color:#888;margin-top:2px;}
+.oc{border:1.5px solid #e5e7eb;border-radius:10px;margin-bottom:16px;overflow:hidden;page-break-inside:avoid;}
+.och{padding:12px 14px;background:#fafafa;border-bottom:1px solid #e5e7eb;}.oct{font-size:15px;font-weight:900;margin-bottom:4px;}.ocm{font-size:11px;color:#666;display:flex;flex-wrap:wrap;gap:8px;}
+.ocb{padding:12px 14px;}.dl{font-size:10px;text-transform:uppercase;color:#888;font-weight:700;margin-bottom:4px;}.dt{font-size:13px;color:#333;line-height:1.5;margin-bottom:10px;}
+.fr{display:flex;gap:12px;margin-bottom:10px;}.fc{flex:1;}.fl{font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:5px;}
+.fl.a{color:#ef4444;}.fl.d{color:#22c55e;}
+.fc img{width:100%;height:130px;object-fit:cover;border-radius:6px;border:2px solid #e5e7eb;}
+.fc.a img{border-color:#fca5a5;}.fc.d img{border-color:#86efac;}
+.fph{width:100%;height:130px;border-radius:6px;border:1.5px dashed #d1d5db;display:flex;align-items:center;justify-content:center;font-size:11px;color:#9ca3af;text-align:center;}
+.tp{background:#fff7ed;border-top:1px solid #e5e7eb;padding:8px 14px;font-size:12px;color:#c2410c;font-weight:600;}
+.sol{background:#f0fdf4;border-top:1px solid #e5e7eb;padding:10px 14px;}
+.footer{margin-top:24px;text-align:center;font-size:10px;color:#ccc;border-top:1px solid #eee;padding-top:10px;}
+.ab{color:#ef4444;font-weight:700;}.ok{color:#22c55e;font-weight:700;}
+.ga{color:#ef4444;font-weight:700;}.gm{color:#f97316;font-weight:700;}.gb{color:#f59e0b;font-weight:700;}
+@media print{.oc{page-break-inside:avoid;}}</style></head><body>`);
+  win.document.write(`<div class="cab"><div><div class="cab-titulo">🔧 Relatório de Manutenção</div><div class="cab-sub">${vLabel} &nbsp;|&nbsp; ${formatDate(ini)} a ${formatDate(fim)}</div><div class="cab-reg">${MOTORISTA} &nbsp;|&nbsp; Reg. Nº ${REGISTRO} &nbsp;|&nbsp; Portex Brasil</div></div><div class="cab-d"><div>Gerado em:</div><div style="font-weight:700">${new Date().toLocaleString('pt-BR')}</div></div></div>`);
+  win.document.write(`<div class="stats"><div class="stat"><div class="n">${all.length}</div><div class="l">Total</div></div><div class="stat"><div class="n" style="color:#ef4444">${ab}</div><div class="l">Em Aberto</div></div><div class="stat"><div class="n" style="color:#22c55e">${res}</div><div class="l">Resolvidos</div></div><div class="stat"><div class="n" style="font-size:16px">R$ ${ct.toFixed(2).replace('.',',')}</div><div class="l">Custo Total</div></div></div>`);
+  for(const o of all){
+    const v=VEICULOS.find(v=>v.id===o.veiculoId)||{nome:'?',placa:'?',icon:'🚛'};
+    const tp=tempoParado(o.data,o.hora,o.dataResolucao,o.horaResolucao);
+    const isAb=o.status==='aberto';
+    const gc={baixa:'gb',media:'gm',alta:'ga'}[o.gravidade]||'';
+    win.document.write(`<div class="oc"><div class="och"><div class="oct">${o.tipo} &nbsp;<span class="${isAb?'ab':'ok'}">[${isAb?'EM ABERTO':'RESOLVIDO'}]</span></div><div class="ocm"><span>${v.icon} ${v.nome} (${v.placa})</span><span>📅 ${formatDT(o.data,o.hora)}</span>${o.local?'<span>📍 '+o.local+'</span>':''}<span class="${gc}">${gravTxt(o.gravidade)}</span></div></div><div class="ocb"><div class="dl">Descrição do Problema</div><div class="dt">${o.descricao}</div><div class="fr"><div class="fc a"><div class="fl a">📷 ANTES — Foto do Problema</div>${fb['a'+o.id]?`<img src="${fb['a'+o.id]}">`:'<div class="fph">Sem foto do problema</div>'}</div><div class="fc d"><div class="fl d">✅ DEPOIS — Foto da Resolução</div>${fb['d'+o.id]?`<img src="${fb['d'+o.id]}">`:'<div class="fph">'+(isAb?'Aguardando resolução':'Sem foto')+'</div>'}</div></div>${o.solucao?'<div class="sol"><div class="dl" style="color:#15803d">✅ Solução Aplicada</div><div class="dt" style="color:#166534">'+o.solucao+(o.oficina?' — '+o.oficina:'')+(o.custo?' — R$ '+parseFloat(o.custo).toFixed(2).replace('.',','):'')+(o.dataResolucao?' — '+formatDate(o.dataResolucao):'')+' </div></div>':''}</div>${tp?'<div class="tp">⏱ Tempo parado: '+tp+(isAb?', contando...':' (total)')+'</div>':''}</div>`);
+  }
+  win.document.write(`<div class="footer">${MOTORISTA} | Reg. Nº ${REGISTRO} | Portex Brasil — Controle de Manutenção</div><script>window.onload=()=>window.print()<\/script></body></html>`);
+  win.document.close();
+}
+async function exportarBackup(){
+  const ocorrs=await dbGetAll('ocorrencias');const fotos=await dbGetAll('fotos');
+  const fb=[];
+  for(const f of fotos){if(f.blob){const b=await blobParaB64(f.blob);fb.push({id:f.id,data:b});}}
+  const blob=new Blob([JSON.stringify({ocorrencias:ocorrs,fotos:fb,exportadoEm:new Date().toISOString()})],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='manutencao-backup-'+toInputDate(new Date()).replace(/-/g,'')+'.json';a.click();URL.revokeObjectURL(url);showToast('✅ Backup salvo!');
+}
+async function importarBackup(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!d.ocorrencias){showToast('⚠ Inválido!','#ef4444');return;}
+      if(!confirm('Restaurar '+d.ocorrencias.length+' ocorrências?'))return;
+      await dbClear('ocorrencias');await dbClear('fotos');
+      for(const o of d.ocorrencias)await dbPut('ocorrencias',o);
+      if(d.fotos){for(const f of d.fotos){const r=await fetch(f.data);const bl=await r.blob();await dbPut('fotos',{id:f.id,blob:bl});}}
+      await atualizarHeader();showToast('✅ Restaurado!');
+    }catch{showToast('⚠ Erro!','#ef4444');}
+  };reader.readAsText(file);event.target.value='';
+}
+async function apagarTudo(){if(!confirm('Apagar TUDO?'))return;if(!confirm('Confirmar?'))return;await dbClear('ocorrencias');await dbClear('fotos');await atualizarHeader();renderOcorrencias();showToast('Apagado.','#ef4444');}
+function showToast(msg,cor){const t=document.getElementById('toast');t.textContent=msg;t.style.background=cor||'var(--green)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+init();
+</script>
+</body></html>
